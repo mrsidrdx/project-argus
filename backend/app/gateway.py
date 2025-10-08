@@ -179,6 +179,33 @@ async def approve_action(approval_id: str, request: Request):
     except Exception:
         raise HTTPException(status_code=400, detail="Tool invocation failed")
     
+    # Record the final "allow" decision after successful approval
+    with tracer.start_as_current_span("approved_decision") as span:
+        span.set_attribute("agent.id", approval.agent_id)
+        span.set_attribute("tool.name", approval.tool)
+        span.set_attribute("tool.action", approval.action)
+        span.set_attribute("approval.id", approval_id)
+        span.set_attribute("approved_by", approved_by)
+        
+        # Get trace ID from current span
+        span_context = span.get_span_context()
+        trace_id = format(span_context.trace_id, "032x") if span_context.is_valid else None
+        
+        # Record the approved decision
+        engine._record_decision(
+            agent_id=approval.agent_id,
+            parent_agent=approval.parent_agent,
+            call_chain=approval.call_chain,
+            tool=approval.tool,
+            action=approval.action,
+            params=approval.params,
+            decision="allow",
+            reason=f"Approved by {approved_by} (original approval ID: {approval_id})",
+            trace_id=trace_id,
+            latency_ms=0.0,  # Approval latency is separate from execution latency
+            approval_id=approval_id
+        )
+    
     logger.info("approved_action", extra={"extra_fields": {
         "approval.id": approval_id,
         "agent.id": approval.agent_id,
