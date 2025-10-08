@@ -1,0 +1,28 @@
+version: 1
+agents:
+  - id: supervisor-agent
+    allow:
+      - tool: payments
+        actions: [create, refund]
+        conditions:
+          max_amount: 100000  # Supervisors can handle larger amounts
+          currencies: [USD, EUR, GBP]
+          max_chain_depth: 2  # Prevent deep call chains
+      - tool: files
+        actions: [read, write]
+        conditions:
+          folder_prefix: "/admin/"
+  
+  - id: restricted-agent
+    allow:
+      - tool: payments
+        actions: [create]
+        conditions:
+          max_amount: 1000
+          currencies: [USD]
+          forbidden_ancestors: [malicious-agent]  # Cannot be called by malicious agents
+      - tool: files
+        actions: [read]
+        conditions:
+          folder_prefix: "/public/"
+          required_ancestors: [supervisor-agent]  # Must be called through supervisor

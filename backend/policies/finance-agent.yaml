@@ -1,0 +1,20 @@
+version: 1
+agents:
+  - id: finance-agent
+    allow:
+      # Regular payments (no approval needed)
+      - tool: payments
+        actions: [create, refund]
+        conditions:
+          max_amount: 5000
+          currencies: [USD, EUR]
+  
+  # Separate agent for high-value payments requiring approval
+  - id: finance-agent-high-value
+    allow:
+      - tool: payments
+        actions: [create]
+        requires_approval: true
+        conditions:
+          max_amount: 50000
+          currencies: [USD, EUR]

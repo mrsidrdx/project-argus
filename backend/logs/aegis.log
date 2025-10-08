@@ -1,0 +1,191 @@
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 1s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 2s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 4s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 8s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 16s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 32s."}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"87776b095e0d18e9aafe84b83ec47baa","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":0.451834,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"25ec09533868fb38d6675f8183393eba","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":true,"policy.version":2,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.441666}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"dd3d5f475268c20ec935b6ae69e646e1","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":true,"policy.version":2,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.320875}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"7c50c961caaec56302de3bf833da5e11","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":false,"policy.version":2,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.231625,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"c4c57421f6273b81d93764ff2a7ef957","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.391209,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 1s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 2s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 4s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 8s."}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"d580134ff72585091450a70299baa2a1","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":true,"policy.version":2,"params.hash":"5e426a2e76eef26a5098d07b70bdc030350a3bb2c0bebd74a878b41ee8ffbf68","latency.ms":0.308458}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 16s."}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 3, Files: 2"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"ebd26374c7136f416b87b6e5260225f8","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":3,"params.hash":"5e426a2e76eef26a5098d07b70bdc030350a3bb2c0bebd74a878b41ee8ffbf68","latency.ms":0.307167,"reason":"Amount 3000 exceeds max_amount 2000"}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 32s."}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 4, Files: 2"}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 1s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 2s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 4s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 8s."}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 16s."}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 5, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 6, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 7, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 8, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 9, Files: 2"}
+{"level":"WARNING","logger":"opentelemetry.exporter.otlp.proto.grpc.exporter","message":"Transient error StatusCode.UNAVAILABLE encountered while exporting traces to otel-collector:4317, retrying in 32s."}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"d67b5d91967ccebcd353a3e931ac82d1","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":0.746042,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"47d464755512975399a723ce57282004","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":true,"policy.version":2,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.345125}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"f70820f5992dbd22581c0d928acd753b","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":true,"policy.version":2,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.277291}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"835de0a618a8a4ea955f5095975826e6","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":false,"policy.version":2,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.094375,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"0596864bd2ed35f5c6ac2c1081d7c18d","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.426875,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 2"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"7dc09923883a713d60f4e0cea396504c","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":0.694791,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"8b90095d34316d95722683dc16dc1461","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":true,"policy.version":2,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.847583}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"a88ac813bc41af674d08e7582c2cf7ec","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":true,"policy.version":2,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.552833}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"149bfc2572495734dd7ff85ed45bc6c8","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":false,"policy.version":2,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.20425,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"645894dcd4e3595da17cf23dcc7f757d","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":2,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.456708,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 3, Files: 2"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"497b02e668ffe04295beac2d0de2b266","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":3,"params.hash":"3ef13d21eea45d0afaf176f5bc99e56dad209cd0992016f4e388325b4a3a2eb8","latency.ms":0.768709,"reason":"Amount 4000 exceeds max_amount 3000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"aafe1ddc2434b4586d5c90be9e80261a","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":true,"policy.version":3,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.424125}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"09a8695068734daf7d2c67783baee6bb","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":true,"policy.version":3,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.2915}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"e40ee5f690299a1e5644e0a5ad588962","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.allow":false,"policy.version":3,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.279167,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"4a4a6e7cd7d67aa975c7d82c83f8a21b","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.allow":false,"policy.version":3,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.352667,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"90571d2a6d811c55123d7789761c379d","agent.id":"restricted-agent","tool.name":"files","tool.action":"read","decision.result":"allow","policy.version":2,"params.hash":"b2cee341a12901ed5925733b43a5f6ff43fcc41eacb8ce4e5bdd8d1b857ca4b9","latency.ms":2.108084,"agent.parent_id":"supervisor-agent"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"3a22149bd806c6aaf5b5573b0a55b40c","agent.id":"restricted-agent","tool.name":"files","tool.action":"read","decision.result":"deny","policy.version":2,"params.hash":"b2cee341a12901ed5925733b43a5f6ff43fcc41eacb8ce4e5bdd8d1b857ca4b9","latency.ms":0.220667,"reason":"Required ancestor 'supervisor-agent' not found in call chain"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"c3daf060ab5cd3f9e2de321d0cbb0b85","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":2,"params.hash":"543223671cc1ebda156b3e9ad85d0ed75eaeeb824b5133b526a2d2bd91af15d6","latency.ms":0.237791,"reason":"Amount 25000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 3, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 4, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 5, Files: 3"}
+{"level":"INFO","logger":"aegis.gateway","message":"pending_approval","trace.id":"6ae11018e669ced77e6a112ea02a9cab","agent.id":"finance-agent-high-value","tool.name":"payments","tool.action":"create","decision.result":"pending_approval","policy.version":5,"params.hash":"543223671cc1ebda156b3e9ad85d0ed75eaeeb824b5133b526a2d2bd91af15d6","latency.ms":0.909792,"reason":"Action requires approval (ID: ada47ada-7b22-4d01-ab0b-381ff6304619)","approval.id":"ada47ada-7b22-4d01-ab0b-381ff6304619"}
+{"level":"INFO","logger":"aegis.gateway","message":"approved_action","trace.id":"25da87fca6570b3129fcdbd2362a2025","approval.id":"ada47ada-7b22-4d01-ab0b-381ff6304619","agent.id":"finance-agent-high-value","tool.name":"payments","tool.action":"create","approved_by":"admin"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"0fb9c950a37fe965a826a1dc4ba0d3ee","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":5,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":1.321083,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"021fc7be4e90fb12fc481034f56f0731","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"allow","policy.version":5,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.623792}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"b9450ae1df1aff0beaccdaba1ea74bd4","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.result":"allow","policy.version":5,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.670875}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 6, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 7, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 8, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 9, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 10, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy file modified: /app/policies/finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 11, Files: 3"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"4e71ba699fdf828e0b5d8b3105e07585","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":11,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":1.155416,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"c63c89c9cddcea8e0f53512bad7e125f","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"allow","policy.version":11,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.506375}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"7bf29b350c697f612c8d19718f796787","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.result":"allow","policy.version":11,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.415958}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"ece0de9f231ee61233f96f7380b7def3","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.result":"deny","policy.version":11,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.266125,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"bccf598fbda59b2f10d46546ebe5240f","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":11,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.29925,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"9faa52fbcb4adb627c3caaf67ea82058","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":2,"params.hash":"896e15289f8b20237d9ff759075ec366e8a0305a679ee7a5fe07054490af498f","latency.ms":1.412958,"reason":"Amount 50000 exceeds max_amount 5000"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"445712ad23e364fb16f1d85318c46a33","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"allow","policy.version":2,"params.hash":"1ea34016be2c0da81924996dee43c3ac4e3f1453e51e81ca989e812e5d9bcf23","latency.ms":0.713917}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"b5c4088cf62bf787fdef8e090534a0cf","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.result":"allow","policy.version":2,"params.hash":"e1b0f82cdbdff032acec0019b0d9ed829ab94dfd4345701afd285d6b34cf8fec","latency.ms":0.6345}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"cc7ec5a35dde2adde3041f43dbd2e7ab","agent.id":"hr-agent","tool.name":"files","tool.action":"read","decision.result":"deny","policy.version":2,"params.hash":"586dd79a690f7f588f94706adc6a9af9eb35b7fdafb8da61fa11489e9439b3e3","latency.ms":0.3425,"reason":"Path /legal/contract.docx does not start with allowed prefix /hr-docs/"}
+{"level":"INFO","logger":"aegis.gateway","message":"deny","trace.id":"d1dd72d2f57600bac9af339e6bd26624","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"deny","policy.version":2,"params.hash":"39c02e4243761d060d2e75a9c63e14098816e55c4484fbd938c0e68b773631ec","latency.ms":0.35025,"reason":"Currency JPY not in allowed currencies ['USD', 'EUR']"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"e536ad8c7f5af5bbb9f8656180cee07c","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"allow","policy.version":2,"params.hash":"9be7c2eb40ea1d8015f3747bcc562109cc9445ed16e3d564c089c254b23b44aa","latency.ms":0.955417}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: supervisor-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: finance-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Loaded policy file: hr-agent.yaml"}
+{"level":"INFO","logger":"aegis.policy","message":"Policies reloaded. Version: 2, Files: 3"}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher started for directory: /app/policies"}
+{"level":"INFO","logger":"aegis.gateway","message":"allow","trace.id":"953f703c23576df22efde603875cf4e8","agent.id":"finance-agent","tool.name":"payments","tool.action":"create","decision.result":"allow","policy.version":2,"params.hash":"7262c272990cf99e8aa2773c24a530355796be599b086fcd6a55e5bebc16425b","latency.ms":0.933042}
+{"level":"INFO","logger":"aegis.policy","message":"Policy watcher stopped"}
