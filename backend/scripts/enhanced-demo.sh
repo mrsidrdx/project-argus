@@ -24,7 +24,7 @@ echo
 
 echo "🛡️ APPROVAL GATES DEMO"
 echo "3. High-value payment requiring approval:"
-APPROVAL_RESPONSE=$(curl -s -H "X-Agent-ID: finance-agent" \
+APPROVAL_RESPONSE=$(curl -s -H "X-Agent-ID: finance-agent-high-value" \
      -H "Content-Type: application/json" \
      -X POST $BASE_URL/tools/payments/create \
      -d '{"amount":25000, "currency": "USD", "vendor_id": "V99"}')

@@ -3,7 +3,7 @@ import os
 import threading
 import time
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -194,7 +194,7 @@ class PolicyEngine:
         params_hash = hashlib.sha256(orjson.dumps(params)).hexdigest()
         
         decision_record = Decision(
-            timestamp=datetime.utcnow().isoformat() + 'Z',
+            timestamp=datetime.now(timezone.utc).isoformat(),
             agent_id=agent_id,
             parent_agent=parent_agent,
             call_chain=call_chain,
@@ -219,11 +219,11 @@ class PolicyEngine:
                                params: Dict[str, Any], reason: str) -> str:
         """Create a pending approval request."""
         approval_id = str(uuid.uuid4())
-        expires_at = datetime.utcnow() + timedelta(hours=24)  # 24 hour expiry
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=24)  # 24 hour expiry
         
         approval = PendingApproval(
             id=approval_id,
-            timestamp=datetime.utcnow().isoformat() + 'Z',
+            timestamp=datetime.now(timezone.utc).isoformat(),
             agent_id=agent_id,
             parent_agent=parent_agent,
             call_chain=call_chain,
@@ -231,7 +231,7 @@ class PolicyEngine:
             action=action,
             params=params,
             reason=reason,
-            expires_at=expires_at.isoformat() + 'Z'
+            expires_at=expires_at.isoformat()
         )
         
         self._pending_approvals[approval_id] = approval
@@ -247,13 +247,14 @@ class PolicyEngine:
             
             # Check if expired
             expires_at = datetime.fromisoformat(approval.expires_at)
-            if datetime.utcnow() > expires_at:
+            now_utc = datetime.now(timezone.utc)
+            if now_utc > expires_at:
                 del self._pending_approvals[approval_id]
                 return False
             
             # Mark as approved
             approval.approved_by = approved_by
-            approval.approved_at = datetime.utcnow().isoformat() + 'Z'
+            approval.approved_at = datetime.now(timezone.utc).isoformat()
             return True
     
     def get_pending_approval(self, approval_id: str) -> Optional[PendingApproval]:
