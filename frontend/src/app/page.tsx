@@ -32,19 +32,33 @@ const API_BASE = "http://localhost:8080";
 
 // Utility function to properly handle UTC timestamps and convert to local time
 const formatTimestamp = (utcTimestamp: string) => {
-  // The backend sends UTC timestamps without 'Z' suffix
-  // We need to explicitly treat them as UTC and convert to local time
-  let date: Date;
-  
-  if (utcTimestamp.endsWith('Z')) {
-    // Already has timezone info
-    date = new Date(utcTimestamp);
-  } else {
-    // Treat as UTC by adding 'Z' suffix
-    date = new Date(utcTimestamp + 'Z');
+  try {
+    // The backend now sends timezone-aware timestamps in ISO format
+    // Handle different formats: 
+    // - "2025-10-08T14:24:40.345632+00:00" (new timezone-aware format)
+    // - "2025-10-08T14:24:40.345632Z" (old Z suffix format)
+    // - "2025-10-08T14:24:40.345632" (old naive format)
+    
+    let date: Date;
+    
+    if (utcTimestamp.includes('+') || utcTimestamp.includes('Z')) {
+      // Already has timezone info, parse directly
+      date = new Date(utcTimestamp);
+    } else {
+      // Treat as UTC by adding 'Z' suffix for backward compatibility
+      date = new Date(utcTimestamp + 'Z');
+    }
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return 'Invalid date';
+    }
+    
+    return formatDistanceToNow(date, { addSuffix: true });
+  } catch (error) {
+    console.error('Error parsing timestamp:', utcTimestamp, error);
+    return 'Invalid date';
   }
-  
-  return formatDistanceToNow(date, { addSuffix: true });
 };
 
 export default function AdminDashboard() {
