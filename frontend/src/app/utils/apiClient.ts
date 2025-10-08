@@ -3,6 +3,7 @@
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
+  reason?: string;
   status: number;
 }
 
@@ -88,6 +89,7 @@ class ApiClient {
         return {
           error: 'Authentication required. Please log in again.',
           status: 401,
+          reason: 'Authentication required. Please log in again.',
         };
       }
 
@@ -98,6 +100,7 @@ class ApiClient {
         return {
           error: `Rate limit exceeded. ${retryMessage}`,
           status: 429,
+          reason: `Rate limit exceeded. ${retryMessage}`,
         };
       }
 
@@ -107,6 +110,7 @@ class ApiClient {
         return {
           error: errorData.detail || errorData.error || `Client error: ${response.status}`,
           status: response.status,
+          reason: errorData.detail || errorData.reason || errorData.error || `Client error: ${response.status}`,
         };
       }
 
@@ -115,6 +119,7 @@ class ApiClient {
         return {
           error: 'Server error. Please try again later.',
           status: response.status,
+          reason: 'Server error. Please try again later.',
         };
       }
 
@@ -129,6 +134,7 @@ class ApiClient {
       return {
         error: 'Network error. Please check your connection.',
         status: 0,
+        reason: 'Network error. Please check your connection.',
       };
     }
   }
