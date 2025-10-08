@@ -8,4 +8,13 @@ opentelemetry-sdk==1.26.0
 opentelemetry-exporter-otlp==1.26.0
 opentelemetry-instrumentation-fastapi==0.47b0
 opentelemetry-instrumentation-logging==0.47b0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+slowapi==0.1.9
+pytest==7.4.3
+pytest-asyncio==0.21.1
+click==8.1.7
+jsonschema==4.19.2
+httpx==0.25.2
 

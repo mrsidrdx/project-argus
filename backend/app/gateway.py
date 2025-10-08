@@ -4,12 +4,16 @@ import time
 from typing import Any, Dict
 
 import orjson
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from opentelemetry import trace
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from .adapters.payments import create_payment, refund_payment
 from .adapters.files import read_file, write_file
+from .auth import get_current_admin, authenticate_admin
+from .middleware import limiter, check_for_abuse
 
 
 router = APIRouter()
@@ -33,6 +37,7 @@ def _hash_params(body: Dict[str, Any]) -> str:
 
 
 @router.post("/tools/{tool}/{action}")
+@limiter.limit("10/minute")
 async def proxy_tool_call(tool: str, action: str, request: Request):
     start_ns = time.time_ns()
     agent_id = request.headers.get("X-Agent-ID")
@@ -74,81 +79,86 @@ async def proxy_tool_call(tool: str, action: str, request: Request):
         if approval_id:
             span.set_attribute("approval.id", approval_id)
 
-    latency_ms = (time.time_ns() - start_ns) / 1_000_000.0
+        latency_ms = (time.time_ns() - start_ns) / 1_000_000.0
 
-    if decision == "deny":
+        if decision == "deny":
+            log_fields = {
+                "agent.id": agent_id,
+                "tool.name": tool,
+                "tool.action": action,
+                "decision.result": decision,
+                "policy.version": engine.version,
+                "params.hash": params_hash,
+                "latency.ms": latency_ms,
+                "reason": reason,
+            }
+            if parent_agent:
+                log_fields["agent.parent_id"] = parent_agent
+            logger.info("deny", extra={"extra_fields": log_fields})
+            
+            # Check for abuse patterns
+            check_for_abuse(request, decision, reason)
+            
+            return JSONResponse(status_code=403, content={"error": "PolicyViolation", "reason": reason})
+        
+        elif decision == "pending_approval":
+            log_fields = {
+                "agent.id": agent_id,
+                "tool.name": tool,
+                "tool.action": action,
+                "decision.result": decision,
+                "policy.version": engine.version,
+                "params.hash": params_hash,
+                "latency.ms": latency_ms,
+                "reason": reason,
+                "approval.id": approval_id,
+            }
+            if parent_agent:
+                log_fields["agent.parent_id"] = parent_agent
+            logger.info("pending_approval", extra={"extra_fields": log_fields})
+            return JSONResponse(status_code=202, content={
+                "status": "pending_approval", 
+                "reason": reason,
+                "approval_id": approval_id,
+                "message": f"Use POST /approve/{approval_id} to approve this action"
+            })
+
+        # Allowed - dispatch to adapter
+        adapter = ADAPTERS.get((tool, action))
+        if adapter is None:
+            raise HTTPException(status_code=404, detail="Unknown tool/action")
+
+        with tracer.start_as_current_span("tool_call") as span:
+            span.set_attribute("agent.id", agent_id)
+            span.set_attribute("tool.name", tool)
+            span.set_attribute("tool.action", action)
+            span.set_attribute("policy.version", engine.version)
+            span.set_attribute("params.hash", params_hash)
+
+            try:
+                result = adapter(body)
+            except Exception:
+                # Sanitize errors; do not leak details
+                raise HTTPException(status_code=400, detail="Tool invocation failed")
+
+        latency_ms = (time.time_ns() - start_ns) / 1_000_000.0
         log_fields = {
             "agent.id": agent_id,
             "tool.name": tool,
             "tool.action": action,
-            "decision.result": decision,
+            "decision.result": "allow",
             "policy.version": engine.version,
             "params.hash": params_hash,
             "latency.ms": latency_ms,
-            "reason": reason,
         }
         if parent_agent:
             log_fields["agent.parent_id"] = parent_agent
-        logger.info("deny", extra={"extra_fields": log_fields})
-        return JSONResponse(status_code=403, content={"error": "PolicyViolation", "reason": reason})
-    
-    elif decision == "pending_approval":
-        log_fields = {
-            "agent.id": agent_id,
-            "tool.name": tool,
-            "tool.action": action,
-            "decision.result": decision,
-            "policy.version": engine.version,
-            "params.hash": params_hash,
-            "latency.ms": latency_ms,
-            "reason": reason,
-            "approval.id": approval_id,
-        }
-        if parent_agent:
-            log_fields["agent.parent_id"] = parent_agent
-        logger.info("pending_approval", extra={"extra_fields": log_fields})
-        return JSONResponse(status_code=202, content={
-            "status": "pending_approval", 
-            "reason": reason,
-            "approval_id": approval_id,
-            "message": f"Use POST /approve/{approval_id} to approve this action"
-        })
-
-    # Allowed - dispatch to adapter
-    adapter = ADAPTERS.get((tool, action))
-    if adapter is None:
-        raise HTTPException(status_code=404, detail="Unknown tool/action")
-
-    with tracer.start_as_current_span("tool_call") as span:
-        span.set_attribute("agent.id", agent_id)
-        span.set_attribute("tool.name", tool)
-        span.set_attribute("tool.action", action)
-        span.set_attribute("policy.version", engine.version)
-        span.set_attribute("params.hash", params_hash)
-
-        try:
-            result = adapter(body)
-        except Exception:
-            # Sanitize errors; do not leak details
-            raise HTTPException(status_code=400, detail="Tool invocation failed")
-
-    latency_ms = (time.time_ns() - start_ns) / 1_000_000.0
-    log_fields = {
-        "agent.id": agent_id,
-        "tool.name": tool,
-        "tool.action": action,
-        "decision.result": "allow",
-        "policy.version": engine.version,
-        "params.hash": params_hash,
-        "latency.ms": latency_ms,
-    }
-    if parent_agent:
-        log_fields["agent.parent_id"] = parent_agent
-    logger.info("allow", extra={"extra_fields": log_fields})
-    return JSONResponse(status_code=200, content=result)
+        logger.info("allow", extra={"extra_fields": log_fields})
+        return JSONResponse(status_code=200, content=result)
 
 
 @router.post("/approve/{approval_id}")
+@limiter.limit("5/minute")
 async def approve_action(approval_id: str, request: Request):
     """Approve a pending action."""
     try:
@@ -223,24 +233,63 @@ async def approve_action(approval_id: str, request: Request):
 
 # Admin API endpoints
 @router.get("/admin/agents")
-async def get_agents(request: Request):
+@limiter.limit("30/minute")
+async def get_agents(request: Request, current_admin: Dict = Depends(get_current_admin)):
     """Get all agents."""
     engine = request.app.state.policy_engine
     return {"agents": engine.get_all_agents()}
 
 
 @router.get("/admin/policies")
-async def get_policies(request: Request):
+@limiter.limit("30/minute")
+async def get_policies(request: Request, current_admin: Dict = Depends(get_current_admin)):
     """Get policies summary."""
     engine = request.app.state.policy_engine
     return engine.get_policies_summary()
 
 
 @router.get("/admin/decisions")
-async def get_decisions(request: Request, limit: int = 50):
+@limiter.limit("30/minute")
+async def get_decisions(request: Request, limit: int = 50, current_admin: Dict = Depends(get_current_admin)):
     """Get recent policy decisions."""
     engine = request.app.state.policy_engine
     decisions = engine.get_recent_decisions(limit)
     return {"decisions": [decision.model_dump() for decision in decisions]}
+
+
+# Admin authentication endpoint
+@router.post("/admin/login")
+@limiter.limit("5/minute")
+async def admin_login(request: Request):
+    """Admin login endpoint for JWT token generation."""
+    try:
+        body = await request.json()
+        username = body.get("username")
+        password = body.get("password")
+        
+        if not username or not password:
+            raise HTTPException(
+                status_code=400,
+                detail="Username and password are required"
+            )
+        
+        token = authenticate_admin(username, password)
+        if not token:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials"
+            )
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "expires_in": 1800  # 30 minutes
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        raise HTTPException(status_code=500, detail="Login failed")
 
 

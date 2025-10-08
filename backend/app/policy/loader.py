@@ -12,6 +12,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from .models import PolicyDocument, Decision, PendingApproval
+from .validator import policy_validator, PolicyValidationError
 
 
 logger = logging.getLogger("aegis.policy")
@@ -84,35 +85,46 @@ class PolicyEngine:
             logger.info("Policy watcher stopped")
     
     def reload_policies(self) -> None:
-        """Reload all policy files from the directory."""
+        """Reload all policy files from the directory with validation."""
         with self._lock:
+            # Use the validator for comprehensive validation
+            all_valid, new_policies_data, validation_errors = policy_validator.validate_all_policies(self.policy_directory)
+            
+            if not all_valid:
+                logger.error(f"Policy validation failed: {validation_errors}")
+                # Keep existing policies on validation failure (rollback strategy)
+                return
+            
+            # Convert validated data to PolicyDocument objects
             new_policies = {}
-            errors = []
+            conversion_errors = []
             
-            for policy_file in self.policy_directory.glob("*.yaml"):
+            for filename, policy_data in new_policies_data.items():
                 try:
-                    with open(policy_file, 'r') as f:
-                        data = yaml.safe_load(f)
-                    
-                    if data is None:
-                        continue
-                    
-                    policy_doc = PolicyDocument.model_validate(data)
-                    new_policies[policy_file.name] = policy_doc
-                    logger.info(f"Loaded policy file: {policy_file.name}")
-                    
+                    policy_doc = PolicyDocument.model_validate(policy_data)
+                    new_policies[filename] = policy_doc
+                    logger.info(f"Loaded and validated policy file: {filename}")
                 except Exception as e:
-                    error_msg = f"Failed to load policy file {policy_file.name}: {e}"
+                    error_msg = f"Failed to convert validated policy {filename}: {e}"
                     logger.error(error_msg)
-                    errors.append(error_msg)
+                    conversion_errors.append(error_msg)
             
-            # Only update if we have at least one valid policy or no policies at all
-            if new_policies or not errors:
-                self._policies = new_policies
-                self._version += 1
-                logger.info(f"Policies reloaded. Version: {self._version}, Files: {len(new_policies)}")
-            else:
-                logger.error("No valid policies found, keeping existing policies")
+            # Only update if all conversions succeeded
+            if conversion_errors:
+                logger.error(f"Policy conversion failed: {conversion_errors}")
+                return
+            
+            # Atomic update of policies
+            old_version = self._version
+            self._policies = new_policies
+            self._version += 1
+            
+            logger.info(f"Policies successfully reloaded. Version: {old_version} → {self._version}, Files: {len(new_policies)}")
+            
+            # Log policy summary for audit
+            total_agents = sum(len(policy_doc.agents) for policy_doc in new_policies.values())
+            total_rules = sum(len(agent.allow) for policy_doc in new_policies.values() for agent in policy_doc.agents)
+            logger.info(f"Policy summary - Agents: {total_agents}, Rules: {total_rules}")
     
     def evaluate(self, agent_id: str, tool: str, action: str, params: Dict[str, Any], 
                  parent_agent: Optional[str] = None, trace_id: Optional[str] = None,

@@ -1,12 +1,16 @@
 import os
 import pathlib
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from .telemetry.setup import setup_telemetry_and_logging
 from .policy.loader import PolicyEngine
 from .gateway import router as gateway_router
+from .middleware import limiter
 
 
 def _ensure_logs_dir() -> None:
@@ -23,6 +27,10 @@ app = FastAPI(title="Aegis Gateway", version="1.0.0")
 
 # Instrument FastAPI with OpenTelemetry
 FastAPIInstrumentor.instrument_app(app)
+
+# Add rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,8 +55,8 @@ def on_shutdown() -> None:
         engine.stop()
 
 
-@app.get("/healthz")
-def healthz():
+@app.get("/health")
+def health():
     return {"status": "ok"}
 
 
