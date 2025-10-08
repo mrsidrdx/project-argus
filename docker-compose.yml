@@ -12,6 +12,7 @@ services:
       - ADMIN_API_KEY=admin-key-change-in-production
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=admin123
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./backend/logs:/app/logs
       - ./backend/policies:/app/policies
@@ -19,6 +20,13 @@ services:
       - otel-collector
     networks:
       - aegis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   admin-ui:
     build: ./frontend
@@ -26,11 +34,19 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_BASE=http://localhost:8080
+      - NEXT_PUBLIC_API_BASE=http://aegis-gateway:8080
+      - NEXT_PUBLIC_JAEGER_URL=http://localhost:16686
     depends_on:
       - aegis-gateway
     networks:
       - aegis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.88.0
@@ -45,6 +61,13 @@ services:
       - jaeger
     networks:
       - aegis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:13133/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   jaeger:
     image: jaegertracing/all-in-one:1.50
@@ -53,8 +76,16 @@ services:
       - "14250:14250"  # Jaeger gRPC
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
     networks:
       - aegis-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   aegis-network:

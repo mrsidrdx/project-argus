@@ -1,34 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Shield, Users, FileText, Activity, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Shield, Users, FileText, Activity, Clock, CheckCircle, XCircle, AlertCircle, LogOut, RefreshCw, ExternalLink, Play, Zap } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-
-
-interface PolicySummary {
-  version: number;
-  files: string[];
-  agents: string[];
-  total_rules: number;
-}
-
-interface Decision {
-  timestamp: string;
-  agent_id: string;
-  parent_agent?: string;
-  call_chain: string[];
-  tool: string;
-  action: string;
-  params_hash: string;
-  decision: string;
-  reason?: string;
-  policy_version: number;
-  latency_ms: number;
-  trace_id?: string;
-  approval_id?: string;
-}
-
-const API_BASE = "http://localhost:8080";
+import { useAuth } from './auth/AuthContext';
+import LoginPage from './auth/LoginPage';
+import ApiClient, { PolicySummary, Decision } from './utils/apiClient';
 
 // Utility function to properly handle UTC timestamps and convert to local time
 const formatTimestamp = (utcTimestamp: string) => {
@@ -61,40 +38,102 @@ const formatTimestamp = (utcTimestamp: string) => {
   }
 };
 
+// Helper function for expected result colors
+const getExpectedColor = (expected: string) => {
+  switch (expected) {
+    case 'allow': return 'text-green-600';
+    case 'deny': return 'text-red-600';
+    default: return 'text-yellow-600';
+  }
+};
+
+// Helper function for status colors
+const getStatusColor = (status: number) => {
+  switch (status) {
+    case 200: return 'bg-green-100 text-green-800';
+    case 202: return 'bg-yellow-100 text-yellow-800';
+    case 403: return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+};
+
 export default function AdminDashboard() {
+  const { isAuthenticated, token, logout, loading: authLoading } = useAuth();
   const [agents, setAgents] = useState<string[]>([]);
   const [policies, setPolicies] = useState<PolicySummary | null>(null);
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'policies' | 'decisions'>('overview');
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'policies' | 'decisions' | 'testing'>('overview');
+  
+  // API client instance
+  const apiClient = useMemo(() => new ApiClient(
+    process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080",
+    () => token,
+    () => logout()
+  ), [token, logout]);
+
+  const fetchData = useCallback(async (showRefreshing = false) => {
+    if (showRefreshing) setRefreshing(true);
+    setError(null);
+    
+    try {
+      const [agentsRes, policiesRes, decisionsRes] = await Promise.all([
+        apiClient.getAgents(),
+        apiClient.getPolicies(),
+        apiClient.getDecisions(50)
+      ]);
+
+      // Handle errors from any of the API calls
+      if (agentsRes.error) {
+        setError(agentsRes.error);
+        return;
+      }
+      if (policiesRes.error) {
+        setError(policiesRes.error);
+        return;
+      }
+      if (decisionsRes.error) {
+        setError(decisionsRes.error);
+        return;
+      }
+
+      setAgents(agentsRes.data?.agents || []);
+      setPolicies(policiesRes.data || null);
+      setDecisions(decisionsRes.data?.decisions || []);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      setError('Failed to fetch data. Please try again.');
+    } finally {
+      setLoading(false);
+      if (showRefreshing) setRefreshing(false);
+    }
+  }, [apiClient]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [agentsRes, policiesRes, decisionsRes] = await Promise.all([
-          fetch(`${API_BASE}/admin/agents`),
-          fetch(`${API_BASE}/admin/policies`),
-          fetch(`${API_BASE}/admin/decisions`)
-        ]);
+    if (isAuthenticated && !authLoading) {
+      fetchData();
+      const interval = setInterval(() => fetchData(), 5000); // Refresh every 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, authLoading, fetchData]);
 
-        const agentsData = await agentsRes.json();
-        const policiesData = await policiesRes.json();
-        const decisionsData = await decisionsRes.json();
+  // Show login page if not authenticated
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-        setAgents(agentsData.agents || []);
-        setPolicies(policiesData);
-        setDecisions(decisionsData.decisions || []);
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 5000); // Refresh every 5 seconds
-    return () => clearInterval(interval);
-  }, []);
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   const getDecisionIcon = (decision: string) => {
     switch (decision) {
@@ -135,12 +174,55 @@ export default function AdminDashboard() {
               <Shield className="w-8 h-8 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-900">Aegis Gateway Admin</h1>
             </div>
-            <div className="text-sm text-gray-500">
-              Policy Version: {policies?.version || 'N/A'}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => fetchData(true)}
+                disabled={refreshing}
+                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50"
+                title="Refresh data"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+              <div className="text-sm text-gray-500">
+                Policy Version: {policies?.version || 'N/A'}
+              </div>
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:text-red-800"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign out</span>
+              </button>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+            <div className="ml-auto pl-3">
+              <div className="-mx-1.5 -my-1.5">
+                <button
+                  onClick={() => setError(null)}
+                  className="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100"
+                >
+                  <XCircle className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="bg-white border-b">
@@ -150,11 +232,12 @@ export default function AdminDashboard() {
               { id: 'overview', label: 'Overview', icon: Activity },
               { id: 'agents', label: 'Agents', icon: Users },
               { id: 'policies', label: 'Policies', icon: FileText },
-              { id: 'decisions', label: 'Recent Decisions', icon: Clock }
+              { id: 'decisions', label: 'Recent Decisions', icon: Clock },
+              { id: 'testing', label: 'Testing', icon: Play }
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
-                onClick={() => setActiveTab(id as 'overview' | 'agents' | 'policies' | 'decisions')}
+                onClick={() => setActiveTab(id as 'overview' | 'agents' | 'policies' | 'decisions' | 'testing')}
                 className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === id
                     ? 'border-blue-500 text-blue-600'
@@ -249,7 +332,7 @@ export default function AdminDashboard() {
                       <li key={file} className="flex items-center space-x-2">
                         <FileText className="w-4 h-4 text-gray-400" />
                         <span className="text-sm text-gray-600">{file}</span>
-                      </li>
+          </li>
                     ))}
                   </ul>
                 </div>
@@ -298,11 +381,14 @@ export default function AdminDashboard() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Reason
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {decisions.slice(0, 50).map((decision, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
+                    {decisions.slice(0, 50).map((decision) => (
+                      <tr key={`${decision.timestamp}-${decision.agent_id}-${decision.params_hash}`} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-2">
                             {getDecisionIcon(decision.decision)}
@@ -329,6 +415,40 @@ export default function AdminDashboard() {
                             {decision.reason || 'N/A'}
                           </div>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          {decision.decision === 'pending_approval' && decision.approval_id && (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const result = await apiClient.approveAction(decision.approval_id!, 'admin-ui');
+                                  if (result.error) {
+                                    setError(result.error);
+                                  } else {
+                                    // Refresh data to show updated status
+                                    fetchData();
+                                  }
+                } catch (err) {
+                  console.error('Approval error:', err);
+                  setError('Failed to approve action');
+                }
+                              }}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              Approve
+                            </button>
+                          )}
+                          {decision.trace_id && (
+                            <a
+                              href={`${process.env.NEXT_PUBLIC_JAEGER_URL || 'http://localhost:16686'}/trace/${decision.trace_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-900 ml-2"
+                              title="View trace in Jaeger"
+                            >
+                              <ExternalLink className="w-4 h-4 inline" />
+                            </a>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -337,7 +457,295 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {activeTab === 'testing' && (
+          <div className="space-y-6">
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Tool Call Testing</h3>
+                <TestingPanel apiClient={apiClient} agents={agents} onError={setError} />
+              </div>
+            </div>
+        </div>
+        )}
       </main>
+    </div>
+  );
+}
+
+// Testing Panel Component
+interface TestingPanelProps {
+  readonly apiClient: ApiClient;
+  readonly agents: string[];
+  readonly onError: (error: string) => void;
+}
+
+function TestingPanel({ 
+  apiClient, 
+  agents, 
+  onError 
+}: TestingPanelProps) {
+  const [selectedAgent, setSelectedAgent] = useState('');
+  const [parentAgent, setParentAgent] = useState('');
+  const [tool, setTool] = useState('payments');
+  const [action, setAction] = useState('create');
+  const [params, setParams] = useState('{"amount": 100, "currency": "USD", "vendor_id": "V1"}');
+  const [result, setResult] = useState<{
+    status: number;
+    data?: Record<string, unknown>;
+    error?: string;
+    timestamp: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const predefinedTests = [
+    {
+      name: 'Valid Payment (Small)',
+      agent: 'finance-agent',
+      tool: 'payments',
+      action: 'create',
+      params: '{"amount": 100, "currency": "USD", "vendor_id": "V1"}',
+      expected: 'allow'
+    },
+    {
+      name: 'High-Value Payment (Approval Required)',
+      agent: 'finance-agent-high-value',
+      tool: 'payments',
+      action: 'create',
+      params: '{"amount": 25000, "currency": "USD", "vendor_id": "V2"}',
+      expected: 'pending_approval'
+    },
+    {
+      name: 'Excessive Payment (Denied)',
+      agent: 'finance-agent',
+      tool: 'payments',
+      action: 'create',
+      params: '{"amount": 6000, "currency": "USD", "vendor_id": "V1"}',
+      expected: 'deny'
+    },
+    {
+      name: 'HR File Read (Allowed)',
+      agent: 'hr-agent',
+      tool: 'files',
+      action: 'read',
+      params: '{"path": "/hr-docs/employee.txt"}',
+      expected: 'allow'
+    },
+    {
+      name: 'Unauthorized File Read (Denied)',
+      agent: 'hr-agent',
+      tool: 'files',
+      action: 'read',
+      params: '{"path": "/finance/budget.xlsx"}',
+      expected: 'deny'
+    }
+  ];
+
+  const handleTest = async (customParams?: Record<string, unknown>) => {
+    if (!selectedAgent) {
+      onError('Please select an agent');
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const testParams = customParams || JSON.parse(params);
+      const response = await apiClient.testToolCall(
+        tool,
+        action,
+        selectedAgent,
+        testParams,
+        parentAgent || undefined
+      );
+
+      setResult({
+        status: response.status,
+        data: response.data,
+        error: response.error,
+        timestamp: new Date().toISOString()
+      });
+
+      if (response.error) {
+        onError(response.error);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Invalid JSON parameters';
+      onError(errorMsg);
+      setResult({
+        status: 0,
+        error: errorMsg,
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runPredefinedTest = async (test: typeof predefinedTests[0]) => {
+    setSelectedAgent(test.agent);
+    setTool(test.tool);
+    setAction(test.action);
+    setParams(test.params);
+    
+    // Wait for state to update, then run test
+    setTimeout(() => {
+      handleTest(JSON.parse(test.params));
+    }, 100);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Predefined Tests */}
+      <div>
+        <h4 className="text-md font-medium text-gray-900 mb-3">Quick Tests</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {predefinedTests.map((test) => (
+            <button
+              key={test.name}
+              onClick={() => runPredefinedTest(test)}
+              disabled={loading}
+              className="text-left p-3 border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            >
+              <div className="font-medium text-sm text-gray-900">{test.name}</div>
+              <div className="text-xs text-gray-500 mt-1">
+                {test.agent} → {test.tool}/{test.action}
+              </div>
+              <div className={`text-xs mt-1 ${
+                getExpectedColor(test.expected)
+              }`}>
+                Expected: {test.expected}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Custom Test Form */}
+      <div>
+        <h4 className="text-md font-medium text-gray-900 mb-3">Custom Test</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="agent-select" className="block text-sm font-medium text-gray-700 mb-1">Agent ID</label>
+            <select
+              id="agent-select"
+              value={selectedAgent}
+              onChange={(e) => setSelectedAgent(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select an agent...</option>
+              {agents.map(agent => (
+                <option key={agent} value={agent}>{agent}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="parent-agent-select" className="block text-sm font-medium text-gray-700 mb-1">Parent Agent (Optional)</label>
+            <select
+              id="parent-agent-select"
+              value={parentAgent}
+              onChange={(e) => setParentAgent(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">None</option>
+              {agents.map(agent => (
+                <option key={agent} value={agent}>{agent}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="tool-select" className="block text-sm font-medium text-gray-700 mb-1">Tool</label>
+            <select
+              id="tool-select"
+              value={tool}
+              onChange={(e) => setTool(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="payments">payments</option>
+              <option value="files">files</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="action-select" className="block text-sm font-medium text-gray-700 mb-1">Action</label>
+            <select
+              id="action-select"
+              value={action}
+              onChange={(e) => setAction(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              {tool === 'payments' ? (
+                <>
+                  <option value="create">create</option>
+                  <option value="refund">refund</option>
+                </>
+              ) : (
+                <>
+                  <option value="read">read</option>
+                  <option value="write">write</option>
+                </>
+              )}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label htmlFor="params-textarea" className="block text-sm font-medium text-gray-700 mb-1">Parameters (JSON)</label>
+          <textarea
+            id="params-textarea"
+            value={params}
+            onChange={(e) => setParams(e.target.value)}
+            rows={4}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder='{"amount": 100, "currency": "USD"}'
+          />
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={() => handleTest()}
+            disabled={loading || !selectedAgent}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <span>Testing...</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4" />
+                <span>Run Test</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Results */}
+      {result && (
+        <div>
+          <h4 className="text-md font-medium text-gray-900 mb-3">Test Result</h4>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                getStatusColor(result.status)
+              }`}>
+                Status: {result.status}
+              </span>
+              <span className="text-xs text-gray-500">
+                {formatTimestamp(result.timestamp)}
+              </span>
+            </div>
+            <pre className="text-sm bg-white text-gray-900 p-3 rounded border overflow-x-auto font-mono">
+              {JSON.stringify(result.data || { error: result.error }, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

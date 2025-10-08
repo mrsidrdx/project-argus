@@ -1,0 +1,75 @@
+# Aegis Gateway Environment Configuration
+# Copy this file to .env and customize for your environment
+
+# =============================================================================
+# BACKEND CONFIGURATION
+# =============================================================================
+
+# JWT Configuration
+JWT_SECRET_KEY=your-jwt-secret-key-change-in-production-use-long-random-string
+
+# Admin API Configuration
+ADMIN_API_KEY=admin-key-change-in-production-use-long-random-string
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change-this-secure-password-in-production
+
+# CORS Configuration (comma-separated origins)
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# Service Configuration
+SERVICE_NAME=aegis-gateway
+POLICY_DIR=/app/policies
+LOGS_DIR=/app/logs
+
+# OpenTelemetry Configuration
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+
+# Python Configuration
+PYTHONUNBUFFERED=1
+
+# =============================================================================
+# FRONTEND CONFIGURATION
+# =============================================================================
+
+# API Endpoints
+NEXT_PUBLIC_API_BASE=http://localhost:8080
+NEXT_PUBLIC_JAEGER_URL=http://localhost:16686
+
+# Node Environment
+NODE_ENV=production
+
+# =============================================================================
+# OBSERVABILITY CONFIGURATION
+# =============================================================================
+
+# Jaeger Storage (memory, elasticsearch, cassandra)
+JAEGER_STORAGE_TYPE=memory
+
+# For Elasticsearch storage (uncomment if using)
+# ES_SERVER_URLS=http://elasticsearch:9200
+# ES_USERNAME=elastic
+# ES_PASSWORD=changeme
+
+# =============================================================================
+# PRODUCTION SECURITY NOTES
+# =============================================================================
+
+# 1. Generate strong random secrets:
+#    - JWT_SECRET_KEY: Use `openssl rand -hex 32`
+#    - ADMIN_API_KEY: Use `openssl rand -hex 32`
+#
+# 2. Use strong admin password:
+#    - ADMIN_PASSWORD: Use a password manager to generate
+#
+# 3. Configure CORS properly:
+#    - CORS_ORIGINS: Only include your actual frontend domains
+#
+# 4. Consider using external secret management:
+#    - AWS Secrets Manager
+#    - HashiCorp Vault
+#    - Kubernetes Secrets
+#
+# 5. Enable HTTPS in production:
+#    - Use a reverse proxy (nginx, traefik)
+#    - Configure SSL certificates
+#    - Update NEXT_PUBLIC_API_BASE to use https://

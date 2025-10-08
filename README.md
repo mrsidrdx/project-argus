@@ -63,15 +63,32 @@ Agent → Gateway → Policy Engine → Tool Adapter
 
 ### One-Command Setup
 
+**Development Mode (with hot reload):**
+```bash
+./start.sh dev
+```
+
+**Production Mode:**
+```bash
+./start.sh prod
+```
+
+**Manual Docker Compose:**
 ```bash
 docker-compose up --build
 ```
 
 This starts:
-- **Aegis Gateway** on `http://localhost:8080`
-- **Admin UI** on `http://localhost:3000`
-- **Jaeger UI** on `http://localhost:16686`
+- **Admin Dashboard** on `http://localhost:3000` 🎯
+- **Aegis Gateway API** on `http://localhost:8080`
+- **Jaeger Tracing UI** on `http://localhost:16686`
 - **OpenTelemetry Collector** (internal)
+
+**Default Login:**
+- Username: `admin`
+- Password: `admin123`
+
+⚠️ **Change credentials in production!**
 
 ### Run Production Validation
 
@@ -494,9 +511,42 @@ OpenTelemetry spans are exported to Jaeger:
 
 ## Development
 
-### Local Development
+### Docker Development
+
+**Recommended approach using the startup script:**
 
 ```bash
+# Start development environment (with hot reload)
+./start.sh dev
+
+# View logs
+./start.sh logs
+
+# Check service status
+./start.sh status
+
+# Stop services
+./start.sh stop
+
+# Clean up everything
+./start.sh clean
+```
+
+**Available startup script commands:**
+- `dev` - Development mode with hot reload
+- `prod` - Production mode with optimizations
+- `stop` - Stop all services
+- `restart` - Restart all services
+- `logs` - Show logs from all services
+- `status` - Show status of all services
+- `clean` - Remove all containers and volumes
+- `build` - Build all images
+- `test` - Run comprehensive test suite
+
+### Local Development (without Docker)
+
+```bash
+# Backend
 cd backend
 pip install -r requirements.txt
 export PYTHONPATH=$PWD
@@ -505,6 +555,11 @@ export LOGS_DIR=$PWD/logs
 export JWT_SECRET_KEY=dev-secret-key
 export ADMIN_API_KEY=dev-admin-key
 uvicorn app.main:app --reload --port 8080
+
+# Frontend (in another terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
 ### Project Structure
@@ -544,8 +599,12 @@ uvicorn app.main:app --reload --port 8080
 │   ├── package.json
 │   └── Dockerfile
 ├── test-production-improvements.sh  # Comprehensive test script (NEW)
-├── docker-compose.yml           # Full stack with auth & UI
-├── otel-collector-config.yaml  # OTel config
+├── docker-compose.yml           # Main service orchestration
+├── docker-compose.override.yml # Development overrides (auto-loaded)
+├── docker-compose.prod.yml     # Production overrides
+├── start.sh                    # Startup script with commands
+├── environment.example         # Environment variables template
+├── otel-collector-config.yaml  # OpenTelemetry configuration
 └── README.md
 ```
 

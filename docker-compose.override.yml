@@ -1,0 +1,34 @@
+# Development overrides for docker-compose.yml
+# This file is automatically loaded by docker-compose for local development
+
+services:
+  aegis-gateway:
+    environment:
+      # Override for local development - allows frontend to connect from browser
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    volumes:
+      # Mount source code for hot reload during development
+      - ./backend:/app:ro
+    # Disable health checks in development for faster startup
+    healthcheck:
+      disable: true
+
+  admin-ui:
+    environment:
+      # Use localhost for browser access in development
+      - NEXT_PUBLIC_API_BASE=http://localhost:8080
+      - NEXT_PUBLIC_JAEGER_URL=http://localhost:16686
+      - NODE_ENV=development
+    volumes:
+      # Mount source code for hot reload during development
+      - ./frontend:/app:ro
+      - /app/node_modules
+      - /app/.next
+    # Disable health checks in development for faster startup
+    healthcheck:
+      disable: true
+    # Override command for development mode
+    command: ["npm", "run", "dev"]
+
+  # Development-only services can be added here
+  # For example, a database for persistent storage in development

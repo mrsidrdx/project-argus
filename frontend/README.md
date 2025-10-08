@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aegis Gateway Frontend
 
-## Getting Started
+A modern Next.js 15 admin dashboard for the Aegis Gateway policy management system.
 
-First, run the development server:
+## Features
+
+- 🔐 **Authentication**: JWT-based login with token management
+- 📊 **Dashboard**: Real-time overview of agents, policies, and decisions
+- 👥 **Agent Management**: View and monitor all registered agents
+- 📋 **Policy Monitoring**: Real-time policy version tracking and statistics
+- 🔍 **Decision Tracking**: View recent policy decisions with approval workflow
+- ⚡ **Testing Interface**: Built-in tool call testing with predefined scenarios
+- 🔗 **Tracing Integration**: Direct links to Jaeger traces for debugging
+- 📱 **Responsive Design**: Modern UI with Tailwind CSS 4
+
+## Environment Configuration
+
+Create a `.env.local` file in the frontend directory:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# API Configuration
+NEXT_PUBLIC_API_BASE=http://localhost:8080
+
+# Jaeger Tracing UI
+NEXT_PUBLIC_JAEGER_URL=http://localhost:16686
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Install dependencies
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Start development server
+npm run dev
 
-## Learn More
+# Build for production
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# Start production server
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Authentication
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Default development credentials:
+- **Username**: `admin`
+- **Password**: `admin123`
 
-## Deploy on Vercel
+⚠️ **Important**: Change these credentials in production by setting the following environment variables in the backend:
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `JWT_SECRET_KEY`
+- `ADMIN_API_KEY`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features Overview
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dashboard Tabs
+
+1. **Overview**: Key metrics and statistics
+2. **Agents**: List of all registered agents
+3. **Policies**: Policy configuration and version info
+4. **Recent Decisions**: Real-time policy decisions with approval actions
+5. **Testing**: Interactive tool call testing interface
+
+### Testing Interface
+
+The testing tab provides:
+- **Quick Tests**: Predefined test scenarios for common use cases
+- **Custom Tests**: Build your own test calls with any parameters
+- **Real-time Results**: See immediate responses with proper status codes
+- **Error Handling**: Clear error messages and rate limit feedback
+
+### Approval Workflow
+
+- View pending approvals in the decisions table
+- One-click approval directly from the UI
+- Automatic refresh to show updated status
+- Integration with backend approval tracking
+
+## Production Considerations
+
+- Enable HTTPS in production
+- Configure proper CORS settings
+- Set secure JWT secrets
+- Use environment-specific API endpoints
+- Enable proper logging and monitoring
+
+## Technology Stack
+
+- **Next.js 15**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS 4**: Modern styling
+- **Lucide React**: Beautiful icons
+- **date-fns**: Date formatting and manipulation

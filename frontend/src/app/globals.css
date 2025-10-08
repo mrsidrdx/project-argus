@@ -24,3 +24,66 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Ensure form elements and code blocks are always visible with proper contrast */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select,
+textarea {
+  color: #111827 !important; /* gray-900 */
+  background-color: #ffffff !important; /* white */
+}
+
+/* Ensure code blocks and pre elements are visible */
+pre,
+code {
+  color: #111827 !important; /* gray-900 */
+}
+
+pre {
+  background-color: #ffffff !important; /* white */
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder,
+input[type="email"]::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 */
+  opacity: 1 !important;
+}
+
+/* Ensure select options are visible */
+select option {
+  color: #111827 !important; /* gray-900 */
+  background-color: #ffffff !important; /* white */
+}
+
+/* Dark mode overrides for form elements and code blocks - keep them light for visibility */
+@media (prefers-color-scheme: dark) {
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  select,
+  textarea {
+    color: #111827 !important; /* Keep dark text */
+    background-color: #ffffff !important; /* Keep white background */
+    border-color: #d1d5db !important; /* gray-300 */
+  }
+  
+  select option {
+    color: #111827 !important;
+    background-color: #ffffff !important;
+  }
+  
+  /* Keep code blocks visible in dark mode */
+  pre,
+  code {
+    color: #111827 !important; /* Keep dark text */
+  }
+  
+  pre {
+    background-color: #ffffff !important; /* Keep white background */
+    border-color: #d1d5db !important; /* gray-300 */
+  }
+}
