@@ -263,9 +263,11 @@ class PolicyEngine:
             return self._pending_approvals.get(approval_id)
     
     def get_recent_decisions(self, limit: int = 50) -> List[Decision]:
-        """Get recent policy decisions."""
+        """Get recent policy decisions, sorted by most recent first."""
         with self._lock:
-            return self._decisions[-limit:]
+            # Get the last N decisions and reverse them to show most recent first
+            recent_decisions = self._decisions[-limit:]
+            return list(reversed(recent_decisions))
     
     def get_all_agents(self) -> List[str]:
         """Get all agent IDs from policies."""
